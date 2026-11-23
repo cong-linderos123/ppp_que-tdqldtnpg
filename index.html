@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#b9d9e9">
+<title>Programa de Predicación Pública</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script>try { if (!localStorage.getItem('predicacion_nombre')) document.documentElement.classList.add('show-welcome'); } catch (_) { document.documentElement.classList.add('show-welcome'); }</script>
+
+<style>
+:root {
+  font-family: "DM Sans", Arial, Helvetica, sans-serif;
+  color: #18212b;
+  font-size: 16px;
+  --neon: #102a91;
+  --card: rgba(244,251,255,.92);
+}
+* { box-sizing: border-box; }
+
+/* BIENVENIDA Y PERSONALIZACION INICIAL */
+body.needs-welcome { overflow:hidden; }
+html.show-welcome body > .container { visibility:hidden; }
+.welcome-screen { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; overflow-y:auto; background:radial-gradient(circle at 15% 10%,#dff7ff 0,transparent 35%),linear-gradient(135deg,#edf4f8,#c6e2ef 55%,#a6cde0); }
+.welcome-screen[hidden] { display:none; }
+.welcome-card { width:min(720px,100%); padding:clamp(22px,5vw,42px); border:1px solid #ffffffd9; border-radius:28px; background:#fafdffed; box-shadow:0 24px 70px #173b5c30; text-align:center; animation:welcomeIn .45s ease both; }
+.welcome-mark { display:grid; place-items:center; width:58px; height:58px; margin:0 auto 16px; border-radius:19px; color:white; background:linear-gradient(135deg,#1689c9,#17458b); box-shadow:0 10px 24px #1767a53d; font-size:1.6rem; }
+.welcome-card h2 { margin:0; color:#12345b; font:700 clamp(1.6rem,5vw,2.25rem) "Space Grotesk",sans-serif; }
+.welcome-copy { margin:10px auto 24px; max-width:480px; color:#587083; line-height:1.55; }
+.welcome-form { display:grid; gap:18px; text-align:left; }
+.welcome-form label { display:grid; gap:8px; color:#244b6d; font-weight:800; }
+.welcome-form input { width:100%; padding:14px 16px; border:1px solid #b9d0df; border-radius:14px; background:#fff; color:#18212b; font:inherit; outline:none; }
+.welcome-form input:focus { border-color:#1689c9; box-shadow:0 0 0 4px #1689c922; }
+.name-validation { margin:-12px 0 0; color:#60788b; font-size:.84rem; line-height:1.45; }
+.name-validation.error { color:#b42335; font-weight:750; }
+.name-validation.success { color:#147a4b; font-weight:750; }
+.authorized-list { margin-top:-7px; color:#315c7e; font-size:.88rem; }
+.authorized-list summary { width:max-content; cursor:pointer; font-weight:800; }
+.authorized-list #authorizedNameList { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+.authorized-name-chip { padding:6px 10px; border:1px solid #cfdeea; border-radius:999px; background:#fff; color:#315c7e; font-size:.8rem; }
+.style-picker { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+.style-choice { position:relative; display:grid; gap:6px; min-height:88px; padding:15px; border:1px solid #cfdeea; border-radius:16px; background:#fff; color:#254663; cursor:pointer; text-align:left; transition:.2s ease; }
+.style-choice:hover { transform:translateY(-2px); border-color:#7ab8da; }
+.style-choice[aria-pressed="true"] { border:2px solid #167fba; background:linear-gradient(135deg,#effaff,#dff3ff); box-shadow:0 0 0 3px #1689c91a; }
+.style-choice strong { font-size:.98rem; }
+.style-choice span { color:#668095; font-size:.82rem; }
+.style-choice .style-swatch { position:absolute; right:13px; top:14px; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#48bce9,#17458b); }
+.style-choice[data-style="verde"] .style-swatch { background:linear-gradient(135deg,#65d6a0,#147a4b); }
+.style-choice[data-style="violeta"] .style-swatch { background:linear-gradient(135deg,#c7a3ff,#6541a5); }
+.style-choice[data-style="rosa"] .style-swatch { background:linear-gradient(135deg,#ffb1ca,#a83262); }
+.welcome-submit { width:100%; min-height:50px; border:0; border-radius:15px; color:white; background:linear-gradient(135deg,#1689c9,#17458b); box-shadow:0 9px 20px #1767a533; font-size:1rem; }
+.welcome-submit:disabled { cursor:wait; opacity:.7; }
+.welcome-progress { display:grid; justify-items:center; gap:15px; padding:16px 0 4px; }
+.welcome-progress[hidden] { display:none; }
+.progress-ring { width:74px; height:74px; border:6px solid #d9e9f2; border-top-color:#1689c9; border-right-color:#1689c9; border-radius:50%; animation:spin .85s linear infinite; }
+.progress-ring.done { border-color:#33aa78; animation:none; position:relative; }
+.progress-ring.done::after { content:"✓"; position:absolute; inset:0; display:grid; place-items:center; color:#188357; font-size:2rem; font-weight:900; }
+.progress-title { margin:0; color:#12345b; font-weight:900; font-size:1.1rem; }
+.progress-detail { margin:0; min-height:1.4em; color:#587083; }
+.progress-track { width:min(340px,100%); height:7px; border-radius:99px; overflow:hidden; background:#dce9f0; }
+.progress-fill { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#43b9e6,#1763a9); transition:width .4s ease; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes welcomeIn { from { opacity:0; transform:translateY(12px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+body.welcome-style-verde .welcome-mark, body.welcome-style-verde .welcome-submit { background:linear-gradient(135deg,#65d6a0,#147a4b); }
+body.welcome-style-violeta .welcome-mark, body.welcome-style-violeta .welcome-submit { background:linear-gradient(135deg,#c7a3ff,#6541a5); }
+body.welcome-style-rosa .welcome-mark, body.welcome-style-rosa .welcome-submit { background:linear-gradient(135deg,#ffb1ca,#a83262); }
+@media(max-width:480px) { .style-picker { grid-template-columns:1fr; } .welcome-card { border-radius:22px; } }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg,#f2f4f6,#dce6ec,#a9cedf);
+  background-attachment: fixed;
+}
+.container { max-width: 1180px; margin: auto; padding: 26px 22px 44px; }
+
+.page-intro { text-align:center; margin: 0 auto 22px; max-width:900px; }
+.page-kicker { margin:0 0 8px; color:#27618b; font-size:.75rem; font-weight:800; letter-spacing:.2em; text-transform:uppercase; }
+.page-subtitle { margin:10px 0 0; color:#486276; font-size:clamp(.92rem,2vw,1.05rem); line-height:1.6; }
+
+/* LOGO JW Y TITULO */
+.titulo-programa {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:14px;
+  width:100%;
+  max-width:900px;
+  margin:0 auto;
+}
+.logo-jw {
+  display:block;
+  width:64px;
+  height:64px;
+  object-fit:contain;
+  flex-shrink:0;
+}
+.titulo-programa h1 {
+  flex:1;
+  min-width:0;
+  margin:0;
+}
+
+.toolbar {
+  position:relative;
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-start;
+  margin:0 0 8px;
+  z-index:10;
+}
+.settings-toggle {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-width:48px;
+  min-height:46px;
+  padding:10px 14px;
+  border:1px solid #ffffffd9;
+  border-radius:15px;
+  background:linear-gradient(135deg,#ffffffed,#dff3ffed);
+  color:#164477;
+  box-shadow:0 8px 22px #173b5c20;
+  font-weight:800;
+}
+.settings-toggle svg { width:22px; height:22px; transition:transform .25s ease; }
+.settings-toggle[aria-expanded="true"] svg { transform:rotate(55deg); }
+
+.settings-panel {
+  position:absolute;
+  top:56px;
+  right:0;
+  width:min(360px,calc(100vw - 28px));
+  padding:18px;
+  border:1px solid #ffffffd9;
+  border-radius:20px;
+  background:rgba(248,252,255,.97);
+  box-shadow:0 18px 48px #142e4b35;
+  backdrop-filter:blur(18px);
+  display:grid;
+  gap:16px;
+  animation:settingsIn .18s ease-out;
+}
+.settings-panel[hidden] { display:none; }
+.settings-heading { margin:0; color:#173f68; font-size:1.05rem; }
+.settings-description { margin:-10px 0 0; color:#60788b; font-size:.85rem; line-height:1.45; }
+.settings-group { display:grid; gap:9px; padding-top:13px; border-top:1px solid #d6e5ef; }
+.settings-group-title { margin:0; color:#315c7e; font-size:.72rem; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+.settings-panel .font-controls { width:100%; min-width:0; }
+.settings-panel #fontSlider { width:100%; min-width:0; flex:1; }
+.settings-panel .voice-control { display:grid; gap:7px; }
+.settings-panel .toolbar-select-label { font-size:.9rem; font-weight:700; color:#244b6d; }
+.settings-panel select { width:100%; max-width:none; border:1px solid #b8cfdf; border-radius:10px; padding:10px; background:#fff; color:#18212b; font:inherit; }
+.settings-panel .theme-setting { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.settings-panel .theme-setting p { margin:0; color:#244b6d; font-size:.92rem; font-weight:700; }
+.settings-panel #themeButton { white-space:nowrap; }
+
+@keyframes settingsIn {
+  from { opacity:0; transform:translateY(-6px) scale(.98); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+
+button {
+  border:2px solid var(--neon);
+  border-radius:9px;
+  padding:10px 15px;
+  background:linear-gradient(135deg,#70d1f7,#37afe9);
+  color:#10264b;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 8px #1739b45c;
+  transition:transform .18s,box-shadow .18s;
+}
+button:hover { transform:translateY(-2px); }
+
+h1 {
+  max-width:900px;
+  margin:0 auto;
+  padding:20px 12px;
+  text-align:center;
+  color:#07539a;
+  font-size:clamp(1.2rem,3vw,1.8rem);
+  font-weight:900;
+  text-transform:uppercase;
+  background:linear-gradient(135deg,#fafdff,#c9eaff);
+  border:3px solid var(--neon);
+  border-radius:15px;
+  box-shadow:0 0 12px #1436a34d,0 8px 24px #25334218;
+}
+h2 { color:#12345b; }
+
+/* RELOJ */
+.clock-card {
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(18px,4vw,42px);
+  flex-wrap:wrap;
+  margin:20px 0 24px;
+  padding:clamp(20px,4vw,30px);
+  overflow:hidden;
+  color:#f6fbff;
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:24px;
+  background:radial-gradient(circle at 15% 10%,#5ac8f0 0,transparent 38%),linear-gradient(135deg,#071b49,#123d78 55%,#176d91);
+  box-shadow:0 18px 40px rgba(13,43,91,.25),inset 0 1px 0 rgba(255,255,255,.28);
+}
+.clock-card::after {
+  content:"";
+  position:absolute;
+  width:230px;
+  height:230px;
+  border:1px solid #ffffff1f;
+  border-radius:50%;
+  right:-75px;
+  top:-110px;
+  pointer-events:none;
+}
+.clock-face {
+  position:relative;
+  flex:0 0 auto;
+  width:clamp(128px,28vw,174px);
+  aspect-ratio:1;
+  border-radius:50%;
+  border:1px solid #ffffff70;
+  background:linear-gradient(145deg,#ffffff26,#ffffff08);
+  box-shadow:0 0 0 8px #ffffff0b,0 12px 28px #00112d55,inset 0 0 24px #ffffff10;
+}
+.clock-face .tick {
+  position:absolute;
+  left:calc(50% - 1px);
+  top:8px;
+  width:2px;
+  height:9px;
+  border-radius:3px;
+  background:#ffffffa8;
+  transform-origin:1px calc(clamp(128px,28vw,174px)/2 - 8px);
+}
+.clock-face .tick.major { height:14px; width:3px; left:calc(50% - 1.5px); background:#fff; }
+.clock-hand { position:absolute; left:50%; bottom:50%; border-radius:8px; transform-origin:50% 100%; box-shadow:0 0 8px #06193640; }
+.clock-hand.hour { width:5px; height:27%; background:#fff; }
+.clock-hand.minute { width:3px; height:36%; background:#8fe5ff; }
+.clock-hand.second { width:2px; height:39%; background:#ffcb75; }
+.clock-pin { position:absolute; left:50%; top:50%; width:11px; height:11px; border:2px solid #15365e; border-radius:50%; background:#fff; transform:translate(-50%,-50%); z-index:2; }
+.clock-info { position:relative; z-index:1; text-align:center; min-width:220px; }
+.clock-eyebrow { margin:0 0 7px; font-size:.72rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:#aeeaff; }
+.clock-time { font-family:"Space Grotesk",sans-serif; font-size:clamp(2.7rem,8vw,4.5rem); font-weight:700; line-height:1; letter-spacing:-.065em; font-variant-numeric:tabular-nums; text-shadow:0 3px 18px #00112d66; }
+.clock-date { margin-top:12px; font-size:clamp(.9rem,2.4vw,1.05rem); font-weight:600; color:#e4f7ff; }
+.clock-zone { display:inline-flex; align-items:center; gap:7px; margin-top:13px; padding:7px 12px; border:1px solid #ffffff38; border-radius:999px; background:#ffffff12; font-size:.75rem; color:#c9efff; }
+.clock-live-dot { width:7px; height:7px; border-radius:50%; background:#6fffc1; box-shadow:0 0 10px #6fffc1; }
+
+/* PROGRAMA DEL DIA */
+.today {
+  margin:24px 0 32px;
+  border:3px solid var(--neon);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--card);
+  box-shadow:0 0 13px #1739b452,0 12px 28px #25334220;
+}
+.today-label { text-align:center; padding:12px; background:linear-gradient(90deg,#d7f3ff,#a7e0ff,#d7f3ff); color:#103c78; font-weight:900; letter-spacing:.08em; }
+.today h2 { margin:0; padding:14px; text-align:center; background:linear-gradient(90deg,#8cdbfa,#49b9ee,#8cdbfa); color:#12345b; border-block:2px solid var(--neon); text-transform:uppercase; font-size:1.15rem; }
+
+/* CONTROLES */
+.font-controls { display:flex; align-items:center; gap:8px; min-height:40px; max-width:100%; padding:5px 10px; background:linear-gradient(135deg,#e4f5ff,#b8e5fa); border:2px solid var(--neon); border-radius:12px; }
+.font-label { flex:0 0 auto; color:#12345b; font-size:12px; font-weight:900; }
+.font-label-big { font-size:21px; }
+#fontSlider { display:block; width:7cm; min-width:7cm; height:18px; padding:0; margin:0; accent-color:#1739db; cursor:ew-resize; }
+#fontValue { min-width:48px; color:#12345b; font-size:12px; font-weight:900; }
+.voice-control { display:flex; align-items:center; gap:7px; font-weight:700; }
+.toolbar select { max-width:260px; border:2px solid var(--neon); border-radius:8px; padding:9px 10px; background:#f5fbff; color:#18212b; font:inherit; }
+
+/* TABLAS */
+.schedule { width:100%; border-collapse:collapse; table-layout:fixed; background:#f4fbff; }
+.schedule th,.schedule td { border:1px solid #25468c; padding:4px 6px; text-align:center; font-size:clamp(.76rem,1.6vw,.98rem); line-height:1.15; font-weight:700; }
+.schedule td { color:#142a40; overflow-wrap:anywhere; }
+.schedule th { background:#0877bd; color:#fff; text-transform:uppercase; }
+.schedule .time-row td { background:#0877bd; color:#fff; text-transform:uppercase; }
+.schedule .peach td { background:#f4c2a8; }
+.schedule .sky td { background:#91d8ef; }
+.schedule .gray td { background:#aaa; }
+.schedule .light td { background:#d7d7d7; }
+.schedule .no-preaching { color:#c01832; font-weight:900; }
+
+/* SEMANA */
+.day-heading { margin:0 0 16px; padding:13px 16px; background:linear-gradient(90deg,#8ddafa,#b8e9fc); color:#12345b; border:3px solid var(--neon); border-radius:11px; text-transform:uppercase; letter-spacing:.05em; }
+.day-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr)); gap:18px; }
+.day-card { min-width:0; overflow:hidden; background:var(--card); border:3px solid var(--neon); border-radius:14px; box-shadow:0 0 12px #1739b452,0 8px 22px #25334220; }
+.day-card h3 { margin:0; padding:13px 15px; background:linear-gradient(90deg,#b7eaff,#6acbf4,#b7eaff); color:#12345b; border-bottom:2px solid var(--neon); text-align:center; text-transform:uppercase; font-size:1rem; }
+#listenButton { display:block; margin:16px auto 18px; padding:12px 20px; }
+.missing-info { padding:12px; text-align:center; font-weight:bold; }
+
+/* MODO OSCURO */
+body.dark { background:linear-gradient(135deg,#18232d,#203541,#294958) fixed; color:#f3f8ff; }
+.dark h2 { color:#e9f8ff; }
+.dark .today,.dark .day-card { background:#253b49; color:#f3f8ff; border-color:#294fff; }
+.dark .titulo-programa h1 { background:linear-gradient(135deg,#253b49,#31566b); color:#effaff; border-color:#294fff; }
+.dark .day-heading { background:#25485b; color:#e9f8ff; border-color:#294fff; }
+.dark .today-label { background:#31566b; color:#effaff; }
+.dark .today h2,.dark .day-card h3 { background:linear-gradient(90deg,#397fa2,#55b9e6,#397fa2); color:white; }
+.dark .toolbar select { background:#253b49; color:#f3f8ff; border-color:#5474ff; }
+.dark .font-controls { background:#294958; border-color:#5474ff; }
+.dark .font-label,.dark #fontValue { color:white; }
+.dark .schedule td { color:#10263b; }
+.dark .schedule .time-row td { color:#10294a; }
+.dark .clock-card { border-color:#5474ff; background:radial-gradient(circle at 15% 10%,#245e83 0,transparent 38%),linear-gradient(135deg,#070e24,#142d54 55%,#16445a); }
+.dark .settings-toggle { background:linear-gradient(135deg,#263f54,#1a3044); color:#e8f7ff; border-color:#49677c; }
+.dark .settings-panel { background:rgba(23,40,54,.98); border-color:#3b5b70; }
+.dark .settings-heading,.dark .settings-group-title,.dark .settings-panel .toolbar-select-label,.dark .settings-panel .theme-setting p { color:#e1f4ff; }
+.dark .settings-description { color:#b2cad9; }
+.dark .settings-group { border-color:#3b586b; }
+.dark .settings-panel select { background:#1e3547; color:#f3f8ff; border-color:#527187; }
+.dark .settings-panel .font-controls { background:#294958; border-color:#5474ff; }
+.dark .settings-panel .font-label,.dark .settings-panel #fontValue { color:#fff; }
+.dark .page-kicker,.dark .page-subtitle { color:#c1e8f8; }
+
+@media(max-width:600px) {
+  .container { padding:14px 12px 30px; }
+  .toolbar { justify-content:flex-end; margin-bottom:8px; }
+  .settings-panel { right:0; padding:15px; }
+  .page-intro { margin-bottom:16px; }
+  .clock-card { margin:16px 0 20px; }
+  .toolbar select { width:100%; max-width:none; }
+  .font-controls { width:100%; overflow-x:auto; }
+  .day-grid { grid-template-columns:1fr; }
+  .schedule th,.schedule td { padding:6px 4px; font-size:.74rem; }
+  .today { margin:14px 0 22px; }
+}
+@media(max-width:480px) {
+  .clock-card { gap:20px; border-radius:19px; }
+  .clock-info { min-width:0; width:100%; }
+  .clock-face { width:132px; }
+  .clock-face .tick { transform-origin:1px 58px; }
+  .clock-face .tick.major { transform-origin:1.5px 58px; }
+  .clock-time { font-size:clamp(2.8rem,14vw,3.7rem); }
+}
+
+/* ESTADO DE RED */
+.network-status-wrap { display:flex; justify-content:flex-start; margin:0 0 12px; }
+.network-status {
+  display:inline-flex; align-items:center; gap:9px;
+  padding:8px 13px; border:1px solid #cbd5df; border-radius:999px;
+  background:#edf0f3; color:#596675; font-size:.82rem; font-weight:800;
+  box-shadow:0 4px 12px #142e4b12;
+}
+.network-status-dot { width:9px; height:9px; border-radius:50%; background:#89939e; }
+.network-status.online { color:#07539a; background:#e4f3ff; border-color:#8bc8f4; }
+.network-status.online .network-status-dot { background:#1688df; box-shadow:0 0 0 4px #1688df20; }
+.network-status.offline { color:#596675; background:#edf0f3; border-color:#cbd5df; }
+.network-status.offline .network-status-dot { background:#89939e; }
+.network-status.checking { color:#596675; background:#f1f3f5; }
+.setting-check { display:flex; align-items:center; gap:9px; color:#244b6d; font-size:.9rem; font-weight:650; }
+.setting-check input { width:17px; height:17px; accent-color:#1688df; }
+.setting-range { display:grid; gap:6px; color:#244b6d; font-size:.9rem; font-weight:650; }
+.setting-range input[type="range"] { width:100%; accent-color:#1688df; }
+.setting-range output { color:#60788b; font-size:.8rem; }
+.setting-range select { width:100%; }
+body.no-card-shadows .clock-card,
+body.no-card-shadows .today,
+body.no-card-shadows .day-card { box-shadow:none !important; }
+body.high-contrast { color:#071421; }
+body.high-contrast .today,
+body.high-contrast .day-card { border-width:4px; border-color:#071f55; }
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+  animation-duration:.01ms !important; animation-iteration-count:1 !important;
+  transition-duration:.01ms !important; scroll-behavior:auto !important;
+}
+body.card-color-green { --neon:#147a4b; }
+body.card-color-violet { --neon:#6541a5; }
+body.card-color-rose { --neon:#a83262; }
+body.card-color-blue { --neon:#102a91; }
+body.card-spacing-compact .day-grid { gap:8px; }
+body.card-spacing-normal .day-grid { gap:18px; }
+body.card-spacing-relaxed .day-grid { gap:28px; }
+body.card-border-1 .today, body.card-border-1 .day-card, body.card-border-1 .day-heading { border-width:1px; }
+body.card-border-2 .today, body.card-border-2 .day-card, body.card-border-2 .day-heading { border-width:2px; }
+body.card-border-3 .today, body.card-border-3 .day-card, body.card-border-3 .day-heading { border-width:3px; }
+body.card-border-4 .today, body.card-border-4 .day-card, body.card-border-4 .day-heading { border-width:4px; }
+body.hide-clock .clock-card { display:none; }
+body.hide-today .today { display:none; }
+body.hide-week .day-heading, body.hide-week #weekGrid { display:none; }
+.dark .setting-check, .dark .setting-range { color:#e1f4ff; }
+.dark .setting-range output { color:#b2cad9; }
+.dark .network-status.offline { color:#c4cbd3; background:#34414c; border-color:#596875; }
+.dark .network-status.online { color:#9bd4ff; background:#173d5b; border-color:#367fb2; }
+@media(max-width:600px) {
+  .network-status-wrap { margin-bottom:10px; }
+}
+
+</style>
+</head>
+
+<body>
+<section class="welcome-screen" id="welcomeScreen" aria-labelledby="welcomeTitle" hidden>
+  <div class="welcome-card">
+    <div class="welcome-mark" aria-hidden="true">✦</div>
+    <h2 id="welcomeTitle">Antes de comenzar</h2>
+    <p class="welcome-copy">Cuéntanos cómo te llamas y elige el estilo que más te guste. Lo guardaremos para tu próxima visita.</p>
+    <form class="welcome-form" id="welcomeForm">
+      <label for="welcomeName">¿Cuál es tu nombre?
+        <input id="welcomeName" name="name" maxlength="40" autocomplete="given-name" list="authorizedNames" placeholder="Escribe tu nombre" required>
+      </label>
+      <datalist id="authorizedNames"></datalist>
+      <p id="nameValidation" class="name-validation" aria-live="polite">Solo pueden entrar las personas que aparecen en el programa.</p>
+      <details class="authorized-list"><summary>Ver nombres autorizados</summary><div id="authorizedNameList"></div></details>
+      <div>
+        <label>Elige un estilo</label>
+        <div class="style-picker" role="group" aria-label="Estilo de bienvenida">
+          <button class="style-choice" type="button" data-style="azul" aria-pressed="true"><span class="style-swatch"></span><strong>Azul sereno</strong><span>Claro y tranquilo</span></button>
+          <button class="style-choice" type="button" data-style="verde" aria-pressed="false"><span class="style-swatch"></span><strong>Verde fresco</strong><span>Natural y luminoso</span></button>
+          <button class="style-choice" type="button" data-style="violeta" aria-pressed="false"><span class="style-swatch"></span><strong>Violeta suave</strong><span>Un toque creativo</span></button>
+          <button class="style-choice" type="button" data-style="rosa" aria-pressed="false"><span class="style-swatch"></span><strong>Rosa cálido</strong><span>Amable y alegre</span></button>
+        </div>
+      </div>
+      <button class="welcome-submit" id="welcomeSubmit" type="submit">Guardar y entrar</button>
+      <div class="welcome-progress" id="welcomeProgress" role="status" aria-live="polite" hidden>
+        <div class="progress-ring" id="progressRing" aria-hidden="true"></div>
+        <p class="progress-title" id="progressTitle">Cargando…</p>
+        <p class="progress-detail" id="progressDetail">Preparando tu espacio</p>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </form>
+  </div>
+</section>
+<main class="container">
+
+  <div class="network-status-wrap">
+    <div id="networkStatus" class="network-status checking" role="status" aria-live="polite">
+      <span class="network-status-dot"></span>
+      <span id="networkStatusText">Comprobando conexión…</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button id="settingsToggle" class="settings-toggle" type="button"
+      aria-expanded="false" aria-controls="settingsPanel" aria-label="Abrir configuración">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.7 1l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.7-1l-1.7.7-1.4-2.4L7.3 15a7 7 0 0 1 0-2l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.7-1l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.7 1l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 2Z" transform="translate(-1 -1) scale(1.08)"></path>
+      </svg>
+      <span>Configuración</span>
+    </button>
+
+    <section class="settings-panel" id="settingsPanel" aria-label="Configuración de la página" hidden>
+      <h2 class="settings-heading">Ajustes de la página</h2>
+      <p class="settings-description">Personaliza la apariencia y la lectura. Los cambios se aplican al instante.</p>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">Apariencia</h3>
+        <div class="theme-setting">
+          <p>Modo de color</p>
+          <button id="themeButton" type="button">Modo oscuro</button>
+        </div>
+        <div class="font-controls" aria-label="Tamaño de letra">
+          <span class="font-label">A</span>
+          <input type="range" id="fontSlider" min="8" max="96" step="0.1" value="16">
+          <span class="font-label font-label-big">A</span>
+          <output id="fontValue">100%</output>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">Personalización de tarjetas</h3>
+        <label class="setting-check"><input type="checkbox" id="showClockSetting" checked> Mostrar reloj</label>
+        <label class="setting-check"><input type="checkbox" id="showTodaySetting" checked> Mostrar programa del día</label>
+        <label class="setting-check"><input type="checkbox" id="showWeekSetting" checked> Mostrar programa semanal</label>
+        <label class="setting-check"><input type="checkbox" id="shadowSetting" checked> Mostrar sombras</label>
+        <label class="setting-range">
+          <span>Separación entre tarjetas</span>
+          <select id="spacingSetting">
+            <option value="compact">Compacta</option>
+            <option value="normal" selected>Normal</option>
+            <option value="relaxed">Amplia</option>
+          </select>
+        </label>
+        <label class="setting-range">
+          <span>Grosor de los bordes</span>
+          <select id="borderSetting">
+            <option value="1">Fino</option>
+            <option value="2">Medio</option>
+            <option value="3" selected>Grueso</option>
+            <option value="4">Muy grueso</option>
+          </select>
+        </label>
+        <label class="setting-range">
+          <span>Color de las tarjetas</span>
+          <select id="cardColorSetting">
+            <option value="blue" selected>Azul</option>
+            <option value="green">Verde</option>
+            <option value="violet">Violeta</option>
+            <option value="rose">Rosa</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">Accesibilidad</h3>
+        <label class="setting-check"><input type="checkbox" id="highContrastSetting"> Contraste alto</label>
+        <label class="setting-check"><input type="checkbox" id="reduceMotionSetting"> Reducir animaciones</label>
+        <p class="settings-description">Estas opciones facilitan la lectura y el uso de la página.</p>
+      </div>
+
+      <div class="settings-group">
+        <h3 class="settings-group-title">Lectura por voz</h3>
+        <label class="voice-control">
+          <span class="toolbar-select-label">Voz para leer el programa</span>
+          <select id="voiceSelect"><option value="auto">Automática</option></select>
+        </label>
+      </div>
+    </section>
+  </div>
+
+  <header class="page-intro">
+    <p class="page-kicker">Congregación Linderos</p>
+
+    <div class="titulo-programa">
+      <img src="jw.png" alt="Logo JW" class="logo-jw">
+      <h1>Programa de Predicación Pública</h1>
+    </div>
+
+    <p class="page-subtitle">Consulta la hora actual, revisa el programa del día y encuentra fácilmente los horarios de toda la semana.</p>
+  </header>
+
+  <section class="clock-card" aria-label="Hora actual de Chile">
+    <div class="clock-face" id="clockFace" aria-hidden="true">
+      <span class="clock-hand hour" id="clockHour"></span>
+      <span class="clock-hand minute" id="clockMinute"></span>
+      <span class="clock-hand second" id="clockSecond"></span>
+      <span class="clock-pin"></span>
+    </div>
+    <div class="clock-info">
+      <p class="clock-eyebrow">Hora actual</p>
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-date" id="clockDate">Cargando fecha…</div>
+      <div class="clock-zone"><span class="clock-live-dot"></span> Hora de Chile continental</div>
+    </div>
+  </section>
+
+  <section class="today" aria-live="polite">
+    <div class="today-label">PROGRAMA DEL DÍA</div>
+    <div id="todayContent"></div>
+    <button id="listenButton" type="button">🔊 Escuchar programa</button>
+  </section>
+
+  <h2 class="day-heading">Programa semanal</h2>
+  <section class="day-grid" id="weekGrid"></section>
+</main>
+
+<script>
+'use strict';
+
+/* PROGRAMA SEMANAL */
+const programa = [
+  {date:'2026-11-23',day:'Lunes',items:[
+    ['09:30 a 11:30','','','', 'header'],['','Casa Hna Doris','Sin PP','Sin PP','light']
+  ]},
+  {date:'2026-11-24',day:'Martes',items:[
+    ['07:30 a 09:00','','','', 'header'],['','Colegio Cardenal R. Silva H.','Ariel Condores','Jasmina de Condores','peach'],['','Colegio Tec. Don Bosco','Sin PP','Sin PP','peach'],
+    ['09:30 a 11:30','','','', 'header'],['','Departamentos lado A. Neghme','Barbara Castro','Mireya Pasten','gray'],['','Departamentos lado A. Lagos','Sin PP','Sin PP','gray'],['','Casa Hna Doris','Sin PP','Sin PP','gray']
+  ]},
+  {date:'2026-11-25',day:'Miércoles',items:[
+    ['09:30 a 11:30','','','', 'header'],['','A. Neghme/Cancha Rayada','Ángel Medina','Luis Troncoso','sky'],['','A. Neghme/Cancha Rayada','Karen Fook','Marina Cano','sky'],['','Casa Hna Doris','Doris Salazar','Mery Ramirez','light']
+  ]},
+  {date:'2026-11-26',day:'Jueves',items:[
+    ['PP','','','', 'header'],['','Colegio Cardenal R. Silva H.','Antonia Cárcamo','Valentina Condores','peach'],['','Colegio Tec. Don Bosco','Sin PP','Sin PP','peach'],
+    ['09:30 a 11:30','','','', 'header'],['','Departamentos lado A. Neghme','Tomasa Ramos','Erika Castro','gray'],['','Departamentos lado A. Lagos','Sin PP','Sin PP','gray'],['','Casa Hna Doris','Doris Salazar','Adriana Gonzalez','gray']
+  ]},
+  {date:'2026-11-27',day:'Viernes',items:[
+    ['09:30 a 11:30','','','', 'header'],['','A. Neghme/Cancha Rayada','Valentina Roco','Nicol de Piñones','sky'],['','A. Neghme/Cancha Rayada','Ivette de Guerrero','Katherine de Cárcamo','sky'],['','Casa Hna Doris','Doris Salazar','Virginia Cespedes','light']
+  ]},
+  {date:'2026-11-28',day:'Sábado',items:[
+    ['08:00 a 10:00','','','', 'header'],['','Neghme/Robinson Rojas','Sin PP','Sin PP','sky'],['10:00 a 12:00','','','', 'header'],['','Cementerio Parque de la Paz','Sin PP','Sin PP','light'],['10:00 a 12:00','','','', 'header'],['','Plaza Mejillones/Linderos','Sin PP','Sin PP','sky']
+  ]}
+];
+/* FECHA Y HORA DE CHILE */
+function datosHoraChile() {
+  const partes = new Intl.DateTimeFormat('en-GB', {
+    timeZone:'America/Santiago',
+    year:'numeric',
+    month:'2-digit',
+    day:'2-digit',
+    hour:'2-digit',
+    hourCycle:'h23'
+  }).formatToParts(new Date());
+
+  const resultado = {};
+  partes.forEach(parte => {
+    if (parte.type !== 'literal') resultado[parte.type] = parte.value;
+  });
+  return resultado;
+}
+
+/* CAMBIO DE PROGRAMA A LAS 13:00, COMO EN EL CODIGO ORIGINAL */
+function fechaProgramaIso() {
+  const ahora = datosHoraChile();
+  const fecha = new Date(Date.UTC(
+    Number(ahora.year),
+    Number(ahora.month) - 1,
+    Number(ahora.day)
+  ));
+
+  if (Number(ahora.hour) >= 13) fecha.setUTCDate(fecha.getUTCDate() + 1);
+
+  return [
+    fecha.getUTCFullYear(),
+    String(fecha.getUTCMonth() + 1).padStart(2,'0'),
+    String(fecha.getUTCDate()).padStart(2,'0')
+  ].join('-');
+}
+
+function esProgramaDeManana() {
+  return Number(datosHoraChile().hour) >= 13;
+}
+
+function fmtDate(iso) {
+  return new Intl.DateTimeFormat('es-CL',{
+    day:'2-digit',month:'2-digit',year:'numeric',timeZone:'UTC'
+  }).format(new Date(iso+'T12:00:00Z'));
+}
+
+function nombreDiaDesdeISO(iso) {
+  return new Intl.DateTimeFormat('es-CL',{
+    weekday:'long',timeZone:'UTC'
+  }).format(new Date(iso+'T12:00:00Z'));
+}
+
+function escaparHTML(texto) {
+  return String(texto).replace(/[&<>"']/g,caracter => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[caracter]);
+}
+
+function renderRows(items) {
+  let filas = '';
+
+  for (const item of items) {
+    const [hora,lugar,a,b,color] = item;
+
+    if (color === 'header') {
+      filas += `<tr class="time-row"><td>${escaparHTML(hora)}</td><td>HERMANO/A</td><td>HERMANO/A</td></tr>`;
+      continue;
+    }
+
+    filas += `<tr class="${escaparHTML(color)}">
+      <td>${escaparHTML(lugar)}</td>
+      <td class="${a==='Sin PP'?'no-preaching':''}">${escaparHTML(a)}</td>
+      <td class="${b==='Sin PP'?'no-preaching':''}">${escaparHTML(b)}</td>
+    </tr>`;
+  }
+  return filas;
+}
+
+function makeTable(day) {
+  return `<table class="schedule">
+    <colgroup><col style="width:50%"><col style="width:25%"><col style="width:25%"></colgroup>
+    <tbody>${renderRows(day.items)}</tbody>
+  </table>`;
+}
+
+function renderPrograma() {
+  const esManana = esProgramaDeManana();
+  const fecha = fechaProgramaIso();
+  const dia = programa.find(x => x.date === fecha);
+
+  document.querySelector('.today-label').textContent =
+    esManana ? 'PROGRAMA DE MAÑANA' : 'PROGRAMA DE HOY';
+
+  document.getElementById('todayContent').innerHTML = dia
+    ? `<h2>${dia.day} · ${fmtDate(dia.date)}</h2>${makeTable(dia)}`
+    : `<h2>${nombreDiaDesdeISO(fecha)} · ${fmtDate(fecha)}</h2>
+       <p class="missing-info">No hay información guardada para este día.</p>`;
+
+  document.getElementById('weekGrid').innerHTML = programa.map(day =>
+    `<article class="day-card">
+      <h3>${day.day} · ${fmtDate(day.date)}</h3>
+      ${makeTable(day)}
+    </article>`
+  ).join('');
+}
+
+/* RELOJ DIGITAL Y ANALOGICO */
+(function prepararReloj() {
+  const cara = document.getElementById('clockFace');
+
+  for (let i = 0; i < 12; i++) {
+    const marca = document.createElement('span');
+    marca.className = 'tick' + (i % 3 === 0 ? ' major' : '');
+    marca.style.transform = `rotate(${i * 30}deg)`;
+    cara.insertBefore(marca, cara.firstChild);
+  }
+
+  const formatoHora = new Intl.DateTimeFormat('es-CL', {
+    timeZone:'America/Santiago',
+    hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
+  });
+
+  const formatoFecha = new Intl.DateTimeFormat('es-CL', {
+    timeZone:'America/Santiago',
+    weekday:'long',day:'numeric',month:'long',year:'numeric'
+  });
+
+  function actualizarReloj() {
+    const ahora = new Date();
+    const partes = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
+      timeZone:'America/Santiago',
+      hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
+    }).formatToParts(ahora).filter(p => p.type !== 'literal').map(p => [p.type,Number(p.value)]));
+
+    const h = partes.hour % 12, m = partes.minute, s = partes.second;
+
+    document.getElementById('clockTime').textContent = formatoHora.format(ahora);
+    document.getElementById('clockDate').textContent =
+      formatoFecha.format(ahora).replace(/^./,c => c.toLocaleUpperCase('es-CL'));
+
+    document.getElementById('clockHour').style.transform =
+      `translateX(-50%) rotate(${h * 30 + m * .5}deg)`;
+    document.getElementById('clockMinute').style.transform =
+      `translateX(-50%) rotate(${m * 6 + s * .1}deg)`;
+    document.getElementById('clockSecond').style.transform =
+      `translateX(-50%) rotate(${s * 6}deg)`;
+  }
+
+  actualizarReloj();
+  setInterval(actualizarReloj,1000);
+})();
+
+renderPrograma();
+setInterval(renderPrograma,30000);
+
+
+/* ESTADO DE CONEXION A INTERNET */
+function actualizarEstadoRed() {
+  const indicador = document.getElementById('networkStatus');
+  const texto = document.getElementById('networkStatusText');
+  if (!indicador || !texto) return;
+
+  const conectado = navigator.onLine;
+  indicador.classList.toggle('online', conectado);
+  indicador.classList.toggle('offline', !conectado);
+  indicador.classList.remove('checking');
+  texto.textContent = conectado ? 'Con internet' : 'Sin internet';
+}
+window.addEventListener('online', actualizarEstadoRed);
+window.addEventListener('offline', actualizarEstadoRed);
+actualizarEstadoRed();
+
+/* PERSONALIZACION DE TARJETAS Y ACCESIBILIDAD */
+const preferenciasVisuales = [
+  ['showClockSetting', 'mostrarReloj', checked => document.body.classList.toggle('hide-clock', !checked)],
+  ['showTodaySetting', 'mostrarProgramaDia', checked => document.body.classList.toggle('hide-today', !checked)],
+  ['showWeekSetting', 'mostrarSemana', checked => document.body.classList.toggle('hide-week', !checked)],
+  ['shadowSetting', 'mostrarSombras', checked => document.body.classList.toggle('no-card-shadows', !checked)],
+  ['highContrastSetting', 'altoContraste', checked => document.body.classList.toggle('high-contrast', checked)],
+  ['reduceMotionSetting', 'reducirAnimaciones', checked => document.body.classList.toggle('reduce-motion', checked)]
+];
+
+preferenciasVisuales.forEach(([id, clave, aplicar]) => {
+  const control = document.getElementById(id);
+  if (!control) return;
+  const guardado = localStorage.getItem('predicacion_' + clave);
+  if (guardado !== null) control.checked = guardado === 'true';
+  aplicar(control.checked);
+  control.addEventListener('change', () => {
+    localStorage.setItem('predicacion_' + clave, String(control.checked));
+    aplicar(control.checked);
+  });
+});
+
+function aplicarSelectPreferencia(id, clave, clases, prefijo) {
+  const control = document.getElementById(id);
+  if (!control) return;
+  const guardado = localStorage.getItem('predicacion_' + clave);
+  if (guardado && [...control.options].some(o => o.value === guardado)) control.value = guardado;
+  const aplicar = () => {
+    clases.forEach(c => document.body.classList.remove(prefijo + c));
+    document.body.classList.add(prefijo + control.value);
+    localStorage.setItem('predicacion_' + clave, control.value);
+  };
+  aplicar();
+  control.addEventListener('change', aplicar);
+}
+aplicarSelectPreferencia('spacingSetting', 'separacionTarjetas', ['compact','normal','relaxed'], 'card-spacing-');
+aplicarSelectPreferencia('borderSetting', 'grosorBordes', ['1','2','3','4'], 'card-border-');
+aplicarSelectPreferencia('cardColorSetting', 'colorTarjetas', ['blue','green','violet','rose'], 'card-color-');
+
+/* LECTOR DE VOZ */
+const selectorVoz = document.getElementById('voiceSelect');
+let vocesEspanol = [];
+
+function actualizarSelectorVoces() {
+  if (!('speechSynthesis' in window)) return;
+
+  const voces = speechSynthesis.getVoices();
+  vocesEspanol = voces.filter(voz => voz.lang && voz.lang.toLowerCase().startsWith('es'));
+
+  const seleccionAnterior = selectorVoz.value || 'auto';
+
+  selectorVoz.innerHTML =
+    '<option value="auto">Automática</option>' +
+    vocesEspanol.map((voz,indice) =>
+      `<option value="${indice}">${escaparHTML(voz.name)} · ${escaparHTML(voz.lang)}</option>`
+    ).join('');
+
+  const guardada = localStorage.getItem('vozPredicacion') || seleccionAnterior;
+
+  if (guardada === 'auto' ||
+      (Number.isInteger(Number(guardada)) &&
+       Number(guardada) >= 0 &&
+       Number(guardada) < vocesEspanol.length)) {
+    selectorVoz.value = guardada;
+  } else {
+    selectorVoz.value = 'auto';
+  }
+}
+
+if ('speechSynthesis' in window) {
+  actualizarSelectorVoces();
+  speechSynthesis.addEventListener('voiceschanged',actualizarSelectorVoces);
+}
+
+selectorVoz.addEventListener('change',() => {
+  localStorage.setItem('vozPredicacion',selectorVoz.value);
+});
+
+function hablar(texto) {
+  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+    alert('Tu navegador no admite la lectura por voz. Prueba con Microsoft Edge o Google Chrome.');
+    return;
+  }
+
+  const mensaje = new SpeechSynthesisUtterance(texto);
+  const voces = speechSynthesis.getVoices();
+
+  vocesEspanol = voces.filter(voz => voz.lang && voz.lang.toLowerCase().startsWith('es'));
+
+  let voz = null;
+
+  if (selectorVoz.value === 'auto') {
+    voz = vocesEspanol.find(v => v.lang.toLowerCase() === 'es-cl') ||
+          vocesEspanol.find(v => v.lang.toLowerCase() === 'es-es') ||
+          vocesEspanol[0] || null;
+  } else {
+    voz = vocesEspanol[Number(selectorVoz.value)] || null;
+  }
+
+  mensaje.lang = voz ? voz.lang : 'es-CL';
+  mensaje.rate = 0.9;
+  mensaje.pitch = 1;
+  mensaje.volume = 1;
+  if (voz) mensaje.voice = voz;
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(mensaje);
+}
+
+function leerProgramaDeHoy() {
+  const esManana = esProgramaDeManana();
+  const fecha = fechaProgramaIso();
+  const dia = programa.find(x => x.date === fecha);
+
+  if (!dia || !dia.items.length) {
+    hablar(`Atención. No hay información guardada para el programa de ${esManana ? 'mañana' : 'hoy'}.`);
+    return;
+  }
+
+  const detalle = dia.items.map(([hora,lugar,hermanoA,hermanoB]) => {
+    const horario = hora ? `${hora}. ` : '';
+    if (hermanoA === 'Sin PP' && hermanoB === 'Sin PP') {
+      return `${horario}${lugar}. No hay predicación programada en este lugar.`;
+    }
+    return `${horario}${lugar}. Participan ${hermanoA} y ${hermanoB}.`;
+  }).join(' ');
+
+  hablar(`Programa de predicación pública de ${esManana ? 'mañana' : 'hoy'}, ${dia.day}, ${fmtDate(dia.date)}. ${detalle}`);
+}
+
+document.getElementById('listenButton').addEventListener('click',leerProgramaDeHoy);
+
+/* PANEL DE CONFIGURACION */
+const settingsToggle = document.getElementById('settingsToggle');
+const settingsPanel = document.getElementById('settingsPanel');
+
+function cerrarConfiguracion() {
+  settingsPanel.hidden = true;
+  settingsToggle.setAttribute('aria-expanded','false');
+  settingsToggle.setAttribute('aria-label','Abrir configuración');
+}
+
+settingsToggle.addEventListener('click',() => {
+  const abrir = settingsPanel.hidden;
+  settingsPanel.hidden = !abrir;
+  settingsToggle.setAttribute('aria-expanded',String(abrir));
+  settingsToggle.setAttribute('aria-label',abrir ? 'Cerrar configuración' : 'Abrir configuración');
+});
+
+document.addEventListener('click',event => {
+  if (!event.target.closest('.toolbar')) cerrarConfiguracion();
+});
+
+document.addEventListener('keydown',event => {
+  if (event.key === 'Escape') cerrarConfiguracion();
+});
+
+/* MODO OSCURO */
+document.getElementById('themeButton').addEventListener('click',e => {
+  document.body.classList.toggle('dark');
+  const oscuro = document.body.classList.contains('dark');
+
+  localStorage.setItem('temaPredicacion',oscuro ? 'oscuro' : 'claro');
+  e.currentTarget.textContent = oscuro ? 'Modo claro' : 'Modo oscuro';
+});
+
+if (localStorage.getItem('temaPredicacion') === 'oscuro') {
+  document.body.classList.add('dark');
+  document.getElementById('themeButton').textContent = 'Modo claro';
+}
+
+/* TAMAÑO DE LETRA */
+const fontSlider = document.getElementById('fontSlider');
+const fontValue = document.getElementById('fontValue');
+
+function aplicarTamanoLetra() {
+  const n = Number(fontSlider.value);
+  document.documentElement.style.fontSize = n + 'px';
+  fontValue.textContent = Math.round(n / 16 * 100) + '%';
+  localStorage.setItem('tamanoLetraPredicacion',fontSlider.value);
+}
+
+fontSlider.value = Math.min(96,Math.max(8,Number(localStorage.getItem('tamanoLetraPredicacion')) || 16));
+aplicarTamanoLetra();
+fontSlider.addEventListener('input',aplicarTamanoLetra);
+
+/* BIENVENIDA: NOMBRE, ESTILO Y CARGA INICIAL */
+const welcomeScreen = document.getElementById('welcomeScreen');
+const welcomeForm = document.getElementById('welcomeForm');
+const welcomeName = document.getElementById('welcomeName');
+const nameValidation = document.getElementById('nameValidation');
+const welcomeSubmit = document.getElementById('welcomeSubmit');
+const welcomeProgress = document.getElementById('welcomeProgress');
+const welcomeTitle = document.getElementById('progressTitle');
+const welcomeDetail = document.getElementById('progressDetail');
+const progressFill = document.getElementById('progressFill');
+const progressRing = document.getElementById('progressRing');
+const nombresAutorizados = [...new Set(programa.flatMap(dia => dia.items.flatMap(item => item.slice(2,4)))
+  .filter(nombre => nombre && nombre !== 'Sin PP'))].sort((a,b) => a.localeCompare(b,'es'));
+const authorizedNames = document.getElementById('authorizedNames');
+const authorizedNameList = document.getElementById('authorizedNameList');
+nombresAutorizados.forEach(nombre => {
+  const option = document.createElement('option');
+  option.value = nombre;
+  authorizedNames.appendChild(option);
+  const chip = document.createElement('span');
+  chip.className = 'authorized-name-chip';
+  chip.textContent = nombre;
+  authorizedNameList.appendChild(chip);
+});
+
+function normalizarNombre(nombre) {
+  return nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').replace(/[^a-z]/g,'');
+}
+
+function distanciaNombre(a,b) {
+  const fila = Array.from({length:b.length + 1},(_,i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = fila[0];
+    fila[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const anterior = fila[j];
+      fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, diagonal + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diagonal = anterior;
+    }
+  }
+  return fila[b.length];
+}
+
+function buscarNombreAutorizado(entrada) {
+  const buscado = normalizarNombre(entrada);
+  if (buscado.length < 3) return null;
+  const exacto = nombresAutorizados.find(nombre => normalizarNombre(nombre) === buscado);
+  if (exacto) return {nombre:exacto, corregido:false};
+  const candidatos = nombresAutorizados.map(nombre => {
+    const normalizado = normalizarNombre(nombre);
+    return {nombre, distancia:distanciaNombre(buscado,normalizado), longitud:normalizado.length};
+  }).sort((a,b) => a.distancia - b.distancia);
+  const mejor = candidatos[0];
+  const maxErrores = Math.max(1, Math.floor(mejor.longitud * .16));
+  return mejor && mejor.distancia <= maxErrores && (mejor.longitud - mejor.distancia) / mejor.longitud >= .78
+    ? {nombre:mejor.nombre, corregido:true} : null;
+}
+
+welcomeName.addEventListener('input', () => {
+  const coincidencia = buscarNombreAutorizado(welcomeName.value.trim());
+  nameValidation.classList.toggle('success', Boolean(coincidencia));
+  nameValidation.classList.toggle('error', Boolean(welcomeName.value.trim()) && !coincidencia);
+  nameValidation.textContent = coincidencia
+    ? `Te reconoceremos como ${coincidencia.nombre}${coincidencia.corregido ? ' (corregimos la escritura)' : ''}.`
+    : (welcomeName.value.trim() ? 'Ese nombre no aparece en el programa. Revisa la lista de nombres autorizados.' : 'Solo pueden entrar las personas que aparecen en el programa.');
+});
+
+let savedName = localStorage.getItem('predicacion_nombre');
+const savedMatch = savedName ? buscarNombreAutorizado(savedName) : null;
+if (savedName && !savedMatch) {
+  localStorage.removeItem('predicacion_nombre');
+  savedName = null;
+} else if (savedMatch) {
+  savedName = savedMatch.nombre;
+  localStorage.setItem('predicacion_nombre', savedName);
+}
+let selectedWelcomeStyle = localStorage.getItem('predicacion_estilo') || 'azul';
+
+function aplicarEstiloBienvenida(estilo) {
+  ['azul','verde','violeta','rosa'].forEach(nombre => document.body.classList.remove('welcome-style-' + nombre));
+  if (estilo !== 'azul') document.body.classList.add('welcome-style-' + estilo);
+}
+
+function aplicarNombre(nombre) {
+  const kicker = document.querySelector('.page-kicker');
+  if (kicker && nombre) kicker.textContent = `Bienvenido/a, ${nombre}`;
+}
+
+document.querySelectorAll('.style-choice').forEach(choice => {
+  choice.addEventListener('click', () => {
+    selectedWelcomeStyle = choice.dataset.style;
+    document.querySelectorAll('.style-choice').forEach(item => item.setAttribute('aria-pressed', String(item === choice)));
+    aplicarEstiloBienvenida(selectedWelcomeStyle);
+  });
+});
+
+aplicarEstiloBienvenida(selectedWelcomeStyle);
+if (savedName) {
+  aplicarNombre(savedName);
+  welcomeScreen.hidden = true;
+} else {
+  welcomeScreen.hidden = false;
+}
+
+welcomeForm.addEventListener('submit', event => {
+  event.preventDefault();
+  const coincidencia = buscarNombreAutorizado(welcomeName.value.trim());
+  if (!coincidencia) {
+    nameValidation.classList.remove('success');
+    nameValidation.classList.add('error');
+    nameValidation.textContent = 'No encontramos ese nombre en el programa. Elige uno de la lista para continuar.';
+    welcomeName.focus();
+    return;
+  }
+  const nombre = coincidencia.nombre;
+
+  localStorage.setItem('predicacion_nombre', nombre);
+  localStorage.setItem('predicacion_estilo', selectedWelcomeStyle);
+  aplicarNombre(nombre);
+  welcomeProgress.hidden = false;
+  welcomeSubmit.hidden = true;
+  welcomeName.disabled = true;
+  document.querySelectorAll('.style-choice').forEach(choice => { choice.disabled = true; });
+
+  const duration = navigator.onLine ? 10000 : 15000;
+  const stages = [
+    { at:0, title:'Cargando…', detail:'Preparando tu espacio' },
+    { at:.35, title:'Guardado y aplicando la información de tu nombre', detail:`Tu nombre: ${nombre}` },
+    { at:.72, title:'Personalizando tu espacio', detail:'Aplicando el estilo que elegiste' },
+    { at:1, title:'Listo:::', detail:'Ya puedes entrar al programa' }
+  ];
+  const started = Date.now();
+  let stageIndex = -1;
+  function updateProgress() {
+    const elapsed = Date.now() - started;
+    const progress = Math.min(1, elapsed / duration);
+    progressFill.style.width = `${progress * 100}%`;
+    let nextStage = 0;
+    for (let i = 0; i < stages.length; i++) if (progress >= stages[i].at) nextStage = i;
+    if (nextStage !== stageIndex && nextStage >= 0) {
+      stageIndex = nextStage;
+      welcomeTitle.textContent = stages[stageIndex].title;
+      welcomeDetail.textContent = stages[stageIndex].detail;
+    }
+    if (progress >= 1) {
+      progressRing.classList.add('done');
+      setTimeout(() => {
+        welcomeScreen.hidden = true;
+        document.documentElement.classList.remove('show-welcome');
+        document.body.classList.remove('needs-welcome');
+        document.body.style.overflow = '';
+      }, 900);
+      return;
+    }
+    requestAnimationFrame(updateProgress);
+  }
+  requestAnimationFrame(updateProgress);
+});
+</script>
+</body>
+</html>
